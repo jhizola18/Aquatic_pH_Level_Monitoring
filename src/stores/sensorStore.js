@@ -2,23 +2,23 @@ import { defineStore } from "pinia";
 
 export const useSensorStore = defineStore("sensorStore", {
   state: () => ({
-    pHLevel: null,        // Latest pH level value
+    pHLevel: null,        
     pHThresholds: {
-      min: 4,             // Minimum pH threshold (default 4.0)
-      max: 9,             // Maximum pH threshold (default 9.0)
+      min: 4,             
+      max: 9,             
     },
-    alerts: [],           // Array to store active alerts
-    latestPHData: [],     // Store last 10 pH data entries
+    alerts: [],          
+    latestPHData: [],     
   }),
   actions: {
     handleIncomingData({ topic, message }) {
       if (topic === "sensors/ph") {
-        this.pHLevel = message; // Update pH level
-        this.addPHData(message); // Add new pH data to latestPHData
-        this.checkpHAlerts(message); // Check alerts after pH level is updated
+        this.pHLevel = message; 
+        this.addPHData(message); 
+        this.checkpHAlerts(message); 
       }
     },
-    // Add new data to the latestPHData array
+    
     addPHData(pH) {
       // Add new data to the beginning of the array
       this.latestPHData.unshift({
@@ -28,7 +28,7 @@ export const useSensorStore = defineStore("sensorStore", {
 
       // Keep only the last 10 entries
       if (this.latestPHData.length > 10) {
-        this.latestPHData.pop(); // Remove the oldest entry
+        this.latestPHData.pop(); 
       }
     },
     checkpHAlerts(pH) {
@@ -37,7 +37,7 @@ export const useSensorStore = defineStore("sensorStore", {
       } else if (pH > this.pHThresholds.max) {
         this.addAlert("pH level is too high!", "red");
       } else {
-        // Remove pH level alerts when within the normal range
+       
         this.removeAlert("pH level is too low!");
         this.removeAlert("pH level is too high!");
       }
@@ -58,6 +58,6 @@ export const useSensorStore = defineStore("sensorStore", {
   getters: {
     getLatestpHLevel: (state) => state.pHLevel,
     getAlerts: (state) => state.alerts,
-    getLatestPHData: (state) => state.latestPHData, // Get the latest 10 pH data entries
+    getLatestPHData: (state) => state.latestPHData, 
   }
 });
