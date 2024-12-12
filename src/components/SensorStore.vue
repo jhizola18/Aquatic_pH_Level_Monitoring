@@ -124,6 +124,8 @@ export default {
 },
 
   methods: {
+
+   
     // Toggle the monitoring state
     toggleMonitoring() {
     this.isMonitoring = !this.isMonitoring;
@@ -168,39 +170,47 @@ export default {
 
   // Save the subscription to handle later in stopMonitoring
   this.subscription = subscribeToTopic(topics, callbacks);
+
+  // Check the pH level against the selected fish's threshold right after starting monitoring
+  this.checkPHThreshold();
 },
+
 
 
 
 
     // Stop monitoring: unsubscribe from MQTT and stop handling data in the app
     stopMonitoring() {
-    console.log("Monitoring stopped");
+  console.log("Monitoring stopped");
 
-    // If subscription is defined, unsubscribe from the topic
-    if (this.subscription && typeof this.subscription.unsubscribe === "function") {
-      this.subscription.unsubscribe();
-      console.log("Unsubscribed from the topic");
-    } else {
-      console.warn("No active subscription to unsubscribe from");
-    }
+  // If a subscription exists, unsubscribe
+  if (this.subscription && typeof this.subscription.unsubscribe === "function") {
+    this.subscription.unsubscribe();
+    console.log("Unsubscribed from the topic");
+  } else {
+    console.warn("No active subscription to unsubscribe from");
+  }
 
-    // Unsubscribe from the pH topic (to stop web app updates)
-    const mqttClient = useSensorStore().mqttClient; // Accessing the MQTT client from the store
-    if (mqttClient && typeof mqttClient.unsubscribe === "function") {
-      mqttClient.unsubscribe("sensors/ph");
-      console.log("Unsubscribed from MQTT topic: sensors/ph");
-    }
+  // Access the MQTT client from the store and unsubscribe
+  const mqttClient = useSensorStore().mqttClient; // Adjust based on your store implementation
+  if (mqttClient) {
+    // Unsubscribe from all topics
+    mqttClient.unsubscribe("sensors/ph", (err) => {
+      if (err) console.error("Error unsubscribing from sensors/ph:", err);
+      else console.log("Unsubscribed from sensors/ph");
+    });
 
-    // Optionally, disconnect the MQTT client
-    if (mqttClient && typeof mqttClient.end === "function") {
-      mqttClient.end(); // Disconnect the client if needed
+    // Disconnect the client
+    mqttClient.end(false, () => {
       console.log("MQTT client disconnected");
-    }
+    });
+  } else {
+    console.warn("No MQTT client available");
+  }
 
-    // Clear alerts when monitoring stops
-    this.alerts = [];
-  },
+  // Clear alerts and update UI state
+  this.alerts = [];
+},
 
 
 

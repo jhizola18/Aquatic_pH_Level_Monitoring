@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { stopSendingData } from "@/services/mqttService";
 import LoginPage from './components/LoginPage.vue'; // Import the LoginPage component
 import SensorStore from './components/SensorStore.vue'; // Import the SensorStore component
 
@@ -32,9 +33,12 @@ export default {
       this.isLoggedIn = true;
     },
     logout() {
-      // Log out by resetting the login state
-      this.isLoggedIn = false;
-    },
+    // Call to stop sending data
+    stopSendingData();
+    this.isLoggedIn = false;
+    // Perform other logout actions, such as clearing user data or redirecting
+    console.log("User logged out");
+  },
   },
 };
 </script>
